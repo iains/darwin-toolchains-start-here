@@ -16,14 +16,45 @@ The toolchain will eventually include both GCC and Clang compilers..
 PRE-REQUISITES
 ==============
 
-1. GIT, heh ;-) [on Darwin11+, XCode 4.6.3, this is already present - for earlier you'll have to build it]
-2. cmake (I've been using 3.4.1 on Darwin9+)
-3. Python 2.7 (I've been using 2.7.11 on Darwin9+) - You'll need to build/obtain Sphinx for documentation support.
-4. IFF you want to support Ada, then you'll have to find a compiler supoorting Ada *and* c++11 that runs on your platform
+* GIT (somewhat obviously)
+* cmake 3.5+
+* Python 2.7 (I've been using 2.7.11 on Darwin9+) - You'll need to build/obtain Sphinx for documentation support.
+* IFF you want to support Ada, then you'll have to find a compiler supoorting Ada *and* c++11 that runs on your platform (e.g. the darwin-5.3r0 release).
+* To make the newer versions of ld64 (or to support any SDK newer than 10.11) you need a libtapi that supports tapi-v3. There's a way to build that too.
+* GCC prerequisites (GMP, MPFR, MPC and optionally ISL) these can be bootstrapped along with the compiler or prebuilt.
 
+STARTING FROM a c++11-capable compiler (e.g. the darwin-5.3r0).
+===============================================================
 
-SYSTEM STARTING POINTS
-======================
+This is the only scenario I've tested (it might be possible to do the sequence "STARTING FROM XCODE ONLY" for 8.3r0 without going via 5.3 but it's untested).
+
+Whatever way you go about it - you will need a version of GCC that support the emulated TLS via a crt (so darwin-5.3r0 or darwin-8.3r0).
+
+1. LLVM base for ld64
+* LLVM-7.1-WIP
+* tapi-2.0.1-for-LLVM-7.1-with-emuTLS.
+
+These source trees should be side-by-side (so that the symlink in clang/tools finds tapi).
+
+Build and install at least LTO, llas, libtapi, libtapi-headers, dsymutil, llvm-symbolizer (I usually also build llvm-dwarfdump, llvm-objdump, llvm-ar, llvm-nm and llvm-strip).
+
+2. Xtools
+* darwin-xtools-2.2.3
+
+Build and install this.
+
+3. GCC
+* darwin-gcc-8.3r0
+you can configure this with --with-as=/path/to/llas and --with-ld=/path/to/new-ld
+
+It's probably best to bootstrap this, since you're likely starting from GCC 5 or something like that.
+
+If you want to do a "full bootstrap" including the LLVM base and the Xtools, then repeat 1-3 using the last built 8.3 compiler as the bootstrap compiler each time (in that case, you might as well --disable-bootstrap to save time).
+
+... more detail to follow, maybe.
+
+STARTING FROM XCODE ONLY (or some other Ada than the one above).
+===============================================================
 
 powerpc,i686-apple-darwin9 (OS X 10.5)
 --------------------------------------
@@ -97,10 +128,6 @@ SEQUENCE FOR DARWIN14+
 
 You can just bootstrap GCC-5.3 with the XCode 7.2 tools (they are newer than darwin-xtools).
 However, IFF you want to have a toolchain like the ones for earlier Darwin, then start at stage1.
-
-
-
-
 
 
 
