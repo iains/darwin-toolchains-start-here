@@ -1,3 +1,7 @@
+# Use the discussions here for general "building and testing toolchains on Darwin"
+
+Enabled the github discussions on this branch - the stuff below is somewhat out of date.
+
 # darwin-toolchains-start-here
 
 WHAT
